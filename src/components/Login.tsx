@@ -16,9 +16,9 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const success = await login(email, password);
-    
+
     if (success) {
       toast({
         title: "Login Successful",
@@ -31,16 +31,9 @@ const Login: React.FC = () => {
         variant: "destructive"
       });
     }
-    
+
     setLoading(false);
   };
-
-  const demoCredentials = [
-    { role: 'Admin', email: 'admin@university.edu', password: 'admin123' },
-    { role: 'HOD', email: 'hod@university.edu', password: 'hod123' },
-    { role: 'Faculty', email: 'faculty1@university.edu', password: 'faculty123' },
-    { role: 'Student', email: 'student1@university.edu', password: 'student123' }
-  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -78,25 +71,6 @@ const Login: React.FC = () => {
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
             </form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Demo Credentials</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm">
-              {demoCredentials.map((cred, index) => (
-                <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="font-medium">{cred.role}:</span>
-                  <div className="text-right">
-                    <div>{cred.email}</div>
-                    <div className="text-gray-600">{cred.password}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </CardContent>
         </Card>
       </div>

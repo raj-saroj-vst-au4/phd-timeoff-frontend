@@ -36,6 +36,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleEditUser = (user) => {
     setEditingUser(user);
+    requestAnimationFrame(() => setUserModalOpen(true));
     setUserModalOpen(true);
   };
 
@@ -104,7 +105,7 @@ const AdminDashboard: React.FC = () => {
   const generateMonthlyReport = () => {
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'];
-    
+
     const reportData = {
       month: monthNames[selectedMonth],
       year: selectedYear,
@@ -287,24 +288,26 @@ const AdminDashboard: React.FC = () => {
                           <TableCell>{user.rollNumber || '-'}</TableCell>
                           <TableCell>{guide?.name || '-'}</TableCell>
                           <TableCell>{ta?.name || '-'}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditUser(user)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteUser(user.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                          {(user.role === 'student' || user.role === 'faculty') ? (
+                            <TableCell>
+                              <div className="flex space-x-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleEditUser(user)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteUser(user.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          ) : <TableCell>-</TableCell>}
                         </TableRow>
                       );
                     })}
@@ -379,8 +382,8 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex space-x-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">Month</label>
-                      <select 
-                        value={selectedMonth} 
+                      <select
+                        value={selectedMonth}
                         onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
                         className="border rounded px-3 py-2"
                       >
@@ -393,8 +396,8 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Year</label>
-                      <select 
-                        value={selectedYear} 
+                      <select
+                        value={selectedYear}
                         onChange={(e) => setSelectedYear(parseInt(e.target.value))}
                         className="border rounded px-3 py-2"
                       >

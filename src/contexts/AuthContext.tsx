@@ -17,62 +17,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Demo users with passwords - fallback data
-const demoUsers: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@university.edu',
-    role: 'admin',
-    password: 'admin123',
-    isActive: true
-  },
-  {
-    id: '2',
-    name: 'HOD Singh',
-    email: 'hod@university.edu',
-    role: 'hod',
-    password: 'hod123',
-    isActive: true
-  },
-  {
-    id: '3',
-    name: 'Dr. Faculty One',
-    email: 'faculty1@university.edu',
-    role: 'faculty',
-    password: 'faculty123',
-    isActive: true
-  },
-  {
-    id: '4',
-    name: 'Dr. Faculty Two',
-    email: 'faculty2@university.edu',
-    role: 'faculty',
-    password: 'faculty456',
-    isActive: true
-  },
-  {
-    id: '5',
-    name: 'John Student',
-    email: 'student1@university.edu',
-    role: 'student',
-    rollNumber: 'PHD2023001',
-    guideId: '3',
-    taId: '4',
-    password: 'student123',
-    isActive: true
-  },
-  {
-    id: '6',
-    name: 'Jane Student',
-    email: 'student2@university.edu',
-    role: 'student',
-    rollNumber: 'PHD2023002',
-    guideId: '3',
-    taId: '3',
-    password: 'student456',
-    isActive: true
-  }
-];
+const demoUsers: User[] = [];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);

@@ -97,8 +97,6 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, onSave }) 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="hod">HOD</SelectItem>
                 <SelectItem value="faculty">Faculty</SelectItem>
                 <SelectItem value="student">Student</SelectItem>
               </SelectContent>

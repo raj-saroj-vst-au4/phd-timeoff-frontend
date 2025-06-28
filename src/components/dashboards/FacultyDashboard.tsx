@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../Layout';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
@@ -12,6 +13,13 @@ import { toast } from '../ui/use-toast';
 const FacultyDashboard: React.FC = () => {
   const { user: {user}, users } = useAuth();
   const { leaves, isLoading, updateLeave, addNotification } = useData();
+
+  const [hod, setHod] = useState(null);
+
+  useEffect(() => {
+    const foundHod = users.find(u => u.role === 'hod');
+    setHod(foundHod);
+  }, [users]);
 
   // Find students where current user is guide or TA
   const myStudents = users.filter(u =>
@@ -36,7 +44,15 @@ const FacultyDashboard: React.FC = () => {
 
     // Notify HOD
     addNotification({
-      userId: '2', // HOD ID
+      userId: hod?.id, // HOD ID
+      type: 'leave_request',
+      message: `Leave application approved by guide and needs your approval`,
+      read: false
+    });
+
+    console.log({
+      userId: hod,
+      id: hod?.id,
       type: 'leave_request',
       message: `Leave application approved by guide and needs your approval`,
       read: false
@@ -59,7 +75,7 @@ const FacultyDashboard: React.FC = () => {
     });
   };
 
-  if (isLoadingLeaves) {
+  if (isLoading || !users || users.length === 0) {
     return (
       <Layout title="Faculty Dashboard">
         <div className="p-8 text-center text-gray-500">
@@ -203,8 +219,9 @@ const FacultyDashboard: React.FC = () => {
                         <p className="text-sm text-gray-600">{student.rollNumber}</p>
                         <p className="text-sm text-gray-600">{student.email}</p>
                         <div className="flex items-center space-x-2 mt-2">
-                          {isGuide && <Badge variant="outline">Guide</Badge>}
-                          {isTA && <Badge variant="outline">TA</Badge>}
+
+                          {isGuide && <Badge variant="outline">Your Role: Guide</Badge>}
+                          {isTA && <Badge variant="outline">Your Role: TA</Badge>}
                         </div>
                       </div>
                       <div className="text-right">
