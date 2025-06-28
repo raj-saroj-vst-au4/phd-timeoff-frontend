@@ -35,8 +35,8 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, onSave }) 
             email: user.email ?? '',
             role: user.role,
             rollNumber: user.rollNumber ?? '',
-            guideId: user.guideId ?? '',
-            taId: user.taId ?? '',
+            guideId: user.guideId ? String(user.guideId) : '',
+            taId: user.taId ? String(user.taId) : '',
             password: user.password ?? '',
             isActive: user.isActive
           });
@@ -119,13 +119,18 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, onSave }) 
 
               <div>
                 <Label htmlFor="guide">Guide</Label>
-                <Select value={formData.guideId} onValueChange={(value) => setFormData({ ...formData, guideId: value })}>
+                <Select
+                  value={formData.guideId || ""}
+                  onValueChange={(value) => setFormData({ ...formData, guideId: value })}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select Guide" />
+                    <SelectValue>
+                      {faculty.find(f => String(f.id) === formData.guideId)?.name || "Select Guide"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {faculty.map((f) => (
-                      <SelectItem key={f.id} value={f.id}>
+                      <SelectItem key={String(f.id)} value={String(f.id)}>
                         {f.name}
                       </SelectItem>
                     ))}
@@ -137,11 +142,13 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, user, onSave }) 
                 <Label htmlFor="ta">Teaching Assistant</Label>
                 <Select value={formData.taId} onValueChange={(value) => setFormData({ ...formData, taId: value })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select TA" />
+                    <SelectValue>
+                      {faculty.find(f => String(f.id) === formData.taId)?.name || "Select TA"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {faculty.map((f) => (
-                      <SelectItem key={f.id} value={f.id}>
+                      <SelectItem key={String(f.id)} value={String(f.id)}>
                         {f.name}
                       </SelectItem>
                     ))}

@@ -63,9 +63,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [attendanceChecks, setAttendanceChecks] = useState<AttendanceCheck[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isBackendAvailable, setIsBackendAvailable] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    checkBackendAndLoadData();
+    checkBackendAndLoadData().finally(() => setIsLoading(false));
   }, []);
 
   const checkBackendAndLoadData = async () => {

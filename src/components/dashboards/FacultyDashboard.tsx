@@ -11,9 +11,7 @@ import { toast } from '../ui/use-toast';
 
 const FacultyDashboard: React.FC = () => {
   const { user: {user}, users } = useAuth();
-  const { leaves, updateLeave, addNotification } = useData();
-
-  console.log(leaves);
+  const { leaves, isLoading, updateLeave, addNotification } = useData();
 
   // Find students where current user is guide or TA
   const myStudents = users.filter(u =>
@@ -60,6 +58,17 @@ const FacultyDashboard: React.FC = () => {
       description: "Leave application has been rejected."
     });
   };
+
+  if (isLoadingLeaves) {
+    return (
+      <Layout title="Faculty Dashboard">
+        <div className="p-8 text-center text-gray-500">
+          Loading leave data...
+        </div>
+      </Layout>
+    );
+  }
+
 
   return (
     <Layout title="Faculty Dashboard">
