@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Phd Time off Frontend
 
 ## Project info
 
