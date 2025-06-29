@@ -25,6 +25,7 @@ export interface Leave {
   hodApprovalDate?: string;
   deanApprovalDate?: string;
   isPaid: boolean;
+  paidDays?: number;
   daysCount: number;
   requiresDeanApproval?: boolean;
   createdAt: string;

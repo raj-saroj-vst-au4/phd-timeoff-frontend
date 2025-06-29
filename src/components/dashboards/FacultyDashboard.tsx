@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../Layout';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
+import StudentsOnLeaveToday from '../dashboard/StudentsOnLeaveToday';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -37,6 +38,15 @@ const FacultyDashboard: React.FC = () => {
     const leave = leaves.find(l => l.id === leaveId);
     if (!leave) return;
 
+    if (!hod) {
+      toast({
+        title: "Error",
+        description: "HOD not loaded yet. Try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     updateLeave(leaveId, {
       status: 'guide_approved',
       guideApprovalDate: new Date().toISOString()
@@ -44,15 +54,7 @@ const FacultyDashboard: React.FC = () => {
 
     // Notify HOD
     addNotification({
-      userId: hod?.id, // HOD ID
-      type: 'leave_request',
-      message: `Leave application approved by guide and needs your approval`,
-      read: false
-    });
-
-    console.log({
-      userId: hod,
-      id: hod?.id,
+      userId: String(hod?.id), // HOD ID
       type: 'leave_request',
       message: `Leave application approved by guide and needs your approval`,
       read: false
@@ -103,6 +105,8 @@ const FacultyDashboard: React.FC = () => {
               <p className="text-sm text-gray-600">Students under guidance</p>
             </CardContent>
           </Card>
+
+          <StudentsOnLeaveToday />
 
           <Card>
             <CardHeader className="pb-2">

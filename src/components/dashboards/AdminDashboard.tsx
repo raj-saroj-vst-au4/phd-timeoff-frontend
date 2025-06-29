@@ -12,6 +12,7 @@ import UserModal from '../modals/UserModal';
 import HolidayModal from '../modals/HolidayModal';
 import { useToast } from '../../hooks/use-toast';
 import DeanApprovalDocuments from '../admin/DeanApprovalDocuments';
+import StudentsOnLeaveToday from '../dashboard/StudentsOnLeaveToday';
 
 const AdminDashboard: React.FC = () => {
   const { leaves, holidays, addHoliday, updateHoliday, removeHoliday } = useData();
@@ -191,6 +192,9 @@ const AdminDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Students on Leave */}
+        <StudentsOnLeaveToday />
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="leaves" className="space-y-4">

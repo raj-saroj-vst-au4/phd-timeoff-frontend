@@ -74,10 +74,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Check leaves
     const leavesResponse = await apiService.getLeaves();
-    if (leavesResponse.success && leavesResponse.data) {
+    if (leavesResponse.success && leavesResponse.data && Array.isArray(leavesResponse.data)) {
       console.log('Backend available, loading leaves from API');
       setIsBackendAvailable(true);
-      setLeaves(leavesResponse.data);
+      setLeaves(leavesResponse.data as Leave[]);
     } else {
       console.log('Backend unavailable for leaves, using sample data');
       setIsBackendAvailable(false);
@@ -86,8 +86,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Load holidays
     const holidaysResponse = await apiService.getHolidays();
-    if (holidaysResponse.success && holidaysResponse.data) {
-      setHolidays(holidaysResponse.data);
+    if (holidaysResponse.success && holidaysResponse.data && Array.isArray(holidaysResponse.data)) {
+      setHolidays(holidaysResponse.data as Holiday[]);
     } else {
       setHolidays(sampleHolidays);
     }
@@ -99,8 +99,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success) {
         // Reload leaves from backend
         const leavesResponse = await apiService.getLeaves();
-        if (leavesResponse.success && leavesResponse.data) {
-          setLeaves(leavesResponse.data);
+        if (leavesResponse.success && leavesResponse.data && Array.isArray(leavesResponse.data)) {
+          setLeaves(leavesResponse.data as Leave[]);
         }
         return;
       }
@@ -121,8 +121,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success) {
         // Reload leaves from backend
         const leavesResponse = await apiService.getLeaves();
-        if (leavesResponse.success && leavesResponse.data) {
-          setLeaves(leavesResponse.data);
+        if (leavesResponse.success && leavesResponse.data && Array.isArray(leavesResponse.data)) {
+          setLeaves(leavesResponse.data as Leave[]);
         }
         return;
       }
@@ -165,8 +165,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success) {
         // Reload holidays from backend
         const holidaysResponse = await apiService.getHolidays();
-        if (holidaysResponse.success && holidaysResponse.data) {
-          setHolidays(holidaysResponse.data);
+        if (holidaysResponse.success && holidaysResponse.data && Array.isArray(holidaysResponse.data)) {
+          setHolidays(holidaysResponse.data as Holiday[]);
         }
         return;
       }
@@ -186,8 +186,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success) {
         // Reload holidays from backend
         const holidaysResponse = await apiService.getHolidays();
-        if (holidaysResponse.success && holidaysResponse.data) {
-          setHolidays(holidaysResponse.data);
+        if (holidaysResponse.success && holidaysResponse.data && Array.isArray(holidaysResponse.data)) {
+          setHolidays(holidaysResponse.data as Holiday[]);
         }
         return;
       }
@@ -205,8 +205,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.success) {
         // Reload holidays from backend
         const holidaysResponse = await apiService.getHolidays();
-        if (holidaysResponse.success && holidaysResponse.data) {
-          setHolidays(holidaysResponse.data);
+        if (holidaysResponse.success && holidaysResponse.data && Array.isArray(holidaysResponse.data)) {
+          setHolidays(holidaysResponse.data as Holiday[]);
         }
         return;
       }

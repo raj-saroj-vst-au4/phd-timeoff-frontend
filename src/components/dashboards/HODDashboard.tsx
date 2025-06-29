@@ -3,6 +3,7 @@ import React from 'react';
 import Layout from '../Layout';
 import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
+import StudentsOnLeaveToday from '../dashboard/StudentsOnLeaveToday';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -33,15 +34,35 @@ const HODDashboard: React.FC = () => {
   // Get admin users for notifications
   const adminUsers = users.filter(u => u.role === 'admin');
 
-  const approveLeave = (leaveId: string, isPaid: boolean = true) => {
+  const approveLeave = (leaveId: string, approvalType: 'full_paid' | 'partial_paid' | 'full_unpaid' = 'full_paid') => {
     const leave = leaves.find(l => l.id === leaveId);
+
+    let isPaid = true;
+    let paidDays = leave.daysCount;
+
+    switch (approvalType) {
+      case 'partial_paid':
+      isPaid = true;
+      paidDays = 15; // Only 15 days are paid
+      break;
+      case 'full_unpaid':
+      isPaid = false;
+      paidDays = 0;
+      break;
+      case 'full_paid':
+      default:
+      isPaid = true;
+      paidDays = leave.daysCount;
+      break;
+    }
 
     if (leave?.type === 'academic' && leave.daysCount > 15) {
       // Academic leave > 15 days needs Dean approval after HOD approval
       updateLeave(leaveId, {
         status: 'dean_approval_pending',
         hodApprovalDate: new Date().toISOString(),
-        isPaid
+        isPaid,
+        paidDays
       });
 
       // Notify admin to generate Dean AP document
@@ -49,21 +70,27 @@ const HODDashboard: React.FC = () => {
         addNotification({
           userId: admin.id,
           type: 'leave_request',
-          message: `Academic leave from ${users.find(u => u.id === leave.studentId)?.name} requires Dean AP document generation`,
+          message: `Academic leave from ${users.find(u => u.id === leave.studentId)?.name} requires Dean AP document generation (${approvalType === 'partial_paid' ? '15 days paid, rest unpaid' : approvalType === 'full_unpaid' ? 'fully unpaid' : 'fully paid'})`,
           read: false
         });
       });
 
+      const approvalMessage = approvalType === 'partial_paid'
+              ? '15 days approved as paid, excess as unpaid'
+              : approvalType === 'full_unpaid'
+              ? 'approved as unpaid'
+              : 'approved as fully paid';
+
       toast({
         title: "Leave Approved - Pending Dean AP Document",
-        description: "Academic leave approved by HOD. Admin will generate Dean AP approval document.",
+        description: `Academic leave ${approvalMessage}. Admin will generate Dean AP approval document.`,
       });
     } else {
       // Regular approval flow
       updateLeave(leaveId, {
         status: 'hod_approved',
         hodApprovalDate: new Date().toISOString(),
-        isPaid
+        isPaid: approvalType !== 'full_unpaid'
       });
 
       toast({
@@ -161,6 +188,8 @@ const HODDashboard: React.FC = () => {
           </Card>
         </div>
 
+        <StudentsOnLeaveToday />
+
         {/* Special Attention Leaves */}
         {specialAttentionLeaves.length > 0 && (
           <Card>
@@ -174,6 +203,7 @@ const HODDashboard: React.FC = () => {
               <div className="space-y-4">
                 {specialAttentionLeaves.map((leave) => {
                   const student = users.find(u => u.id === leave.studentId);
+                  const isAcademicOver15 = leave.type === 'academic' && leave.daysCount > 15;
                   return (
                     <div key={leave.id} className="border border-red-200 rounded-lg p-4 bg-red-50">
                       <div className="flex justify-between items-start mb-4">
@@ -203,28 +233,69 @@ const HODDashboard: React.FC = () => {
                       </div>
                       <p className="text-sm text-gray-700 mb-4">{leave.reason}</p>
                       {leave.status === 'guide_approved' && (
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            onClick={() => approveLeave(leave.id, true)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            Approve as Paid
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => approveLeave(leave.id, false)}
-                          >
-                            Approve as Unpaid
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => rejectLeave(leave.id)}
-                          >
-                            Reject
-                          </Button>
+                        <div className="space-y-2">
+                          {isAcademicOver15 && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3">
+                              <p className="text-sm text-yellow-800 font-medium mb-2">
+                                Academic leave exceeds 15 days. Choose approval type:
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => approveLeave(leave.id, 'full_paid')}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  Approve All {leave.daysCount} Days as Paid
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => approveLeave(leave.id, 'partial_paid')}
+                                  className="bg-blue-600 hover:bg-blue-700"
+                                >
+                                  Approve 15 Days Paid, {leave.daysCount - 15} Days Unpaid
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => approveLeave(leave.id, 'full_unpaid')}
+                                >
+                                  Approve All as Unpaid
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => rejectLeave(leave.id)}
+                                >
+                                  Reject Leave
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          {!isAcademicOver15 && (
+                            <div className="flex space-x-2">
+                              <Button
+                                size="sm"
+                                onClick={() => approveLeave(leave.id, 'full_paid')}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                Approve as Paid
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => approveLeave(leave.id, 'full_unpaid')}
+                              >
+                                Approve as Unpaid
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => rejectLeave(leave.id)}
+                              >
+                                Reject
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -248,7 +319,7 @@ const HODDashboard: React.FC = () => {
                 {pendingLeaves.map((leave) => {
                   const student = users.find(u => u.id === leave.studentId);
                   const guide = users.find(u => u.id === student?.guideId);
-
+                  const isAcademicOver15 = leave.type === 'academic' && leave.daysCount > 15;
                   return (
                     <div key={leave.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start mb-4">
@@ -281,24 +352,63 @@ const HODDashboard: React.FC = () => {
                         </div>
                       </div>
                       <p className="text-sm text-gray-700 mb-4">{leave.reason}</p>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          onClick={() => approveLeave(leave.id)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Approve
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => rejectLeave(leave.id)}
-                        >
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
-                      </div>
+                      {isAcademicOver15 ? (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3">
+                          <p className="text-sm text-yellow-800 font-medium mb-2">
+                            Academic leave exceeds 15 days. Choose approval type:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => approveLeave(leave.id, 'full_paid')}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              Approve All {leave.daysCount} Days as Paid
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => approveLeave(leave.id, 'partial_paid')}
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              15 Days Paid, {leave.daysCount - 15} Unpaid
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => approveLeave(leave.id, 'full_unpaid')}
+                            >
+                              All Unpaid
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => rejectLeave(leave.id)}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            onClick={() => approveLeave(leave.id, 'full_paid')}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => rejectLeave(leave.id)}
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

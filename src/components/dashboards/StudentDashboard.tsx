@@ -6,7 +6,7 @@ import { useData } from '../../contexts/DataContext';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { Plus, Calendar, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Calendar, Clock, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import LeaveApplicationForm from '../forms/LeaveApplicationForm';
 import { formatDate } from '../../utils/dateUtils';
 
@@ -26,6 +26,10 @@ const StudentDashboard: React.FC = () => {
         return 'bg-blue-100 text-blue-800';
       case 'hod_approved':
         return 'bg-green-100 text-green-800';
+      case 'dean_approval_pending':
+         return 'bg-orange-100 text-orange-800';
+      case 'dean_approved':
+         return 'bg-purple-100 text-purple-800';
       case 'rejected':
         return 'bg-red-100 text-red-800';
       default:
@@ -41,12 +45,28 @@ const StudentDashboard: React.FC = () => {
         return <CheckCircle className="h-4 w-4 text-blue-600" />;
       case 'hod_approved':
         return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'dean_approval_pending':
+        return <Clock className="h-4 w-4 text-orange-600" />;
+      case 'dean_approved':
+        return <CheckCircle className="h-4 w-4 text-purple-600" />;
       case 'rejected':
         return <XCircle className="h-4 w-4 text-red-600" />;
       default:
         return <Clock className="h-4 w-4" />;
     }
   };
+
+  const getBalanceDisplay = (balance: number, isNegative: boolean) => {
+      if (isNegative) {
+        return (
+          <div className="flex items-center space-x-1">
+            <span className="text-2xl font-bold text-red-600">{balance}</span>
+            <AlertTriangle className="h-5 w-5 text-red-600" />
+          </div>
+        );
+      }
+      return <div className="text-2xl font-bold text-blue-600">{balance}</div>;
+    };
 
   return (
     <Layout title="Student Dashboard">
@@ -58,10 +78,16 @@ const StudentDashboard: React.FC = () => {
               <CardTitle className="text-lg">Personal Leaves</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {studentBalance?.personalLeaves || 0}
-              </div>
-              <p className="text-sm text-gray-600">Available (Max: 15 per 6 months)</p>
+              {getBalanceDisplay(
+                              studentBalance?.personalLeaves || 0,
+                              (studentBalance?.personalLeaves || 0) < 0
+                            )}
+                            <p className="text-sm text-gray-600">
+                              Available (Max: 15 per 6 months)
+                              {(studentBalance?.personalLeaves || 0) < 0 && (
+                                <span className="text-red-600 block">Negative Balance!</span>
+                              )}
+                            </p>
             </CardContent>
           </Card>
 
@@ -70,10 +96,16 @@ const StudentDashboard: React.FC = () => {
               <CardTitle className="text-lg">Medical Leaves</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {studentBalance?.medicalLeaves || 0}
-              </div>
-              <p className="text-sm text-gray-600">Available (Max: 5 per 6 months)</p>
+              {getBalanceDisplay(
+                              studentBalance?.medicalLeaves || 0,
+                              (studentBalance?.medicalLeaves || 0) < 0
+                            )}
+                            <p className="text-sm text-gray-600">
+                              Available (Max: 5 per 6 months)
+                              {(studentBalance?.medicalLeaves || 0) < 0 && (
+                                <span className="text-red-600 block">Negative Balance!</span>
+                              )}
+                            </p>
             </CardContent>
           </Card>
 
@@ -82,10 +114,16 @@ const StudentDashboard: React.FC = () => {
               <CardTitle className="text-lg">Academic Leaves</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
-                {studentBalance?.academicLeaves || 0}
-              </div>
-              <p className="text-sm text-gray-600">Available (Max: 25 per 6 months)</p>
+              {getBalanceDisplay(
+                              studentBalance?.academicLeaves || 0,
+                              (studentBalance?.academicLeaves || 0) < 0
+                            )}
+                            <p className="text-sm text-gray-600">
+                              Available (Max: 25 per 6 months)
+                              {(studentBalance?.academicLeaves || 0) < 0 && (
+                                <span className="text-red-600 block">Negative Balance!</span>
+                              )}
+                            </p>
             </CardContent>
           </Card>
         </div>
@@ -136,6 +174,9 @@ const StudentDashboard: React.FC = () => {
                         <p className="text-sm font-medium">{leave.daysCount} days</p>
                         <p className="text-xs text-gray-500">
                           {leave.isPaid ? 'Paid' : 'Unpaid'}
+                          {leave.paidDays && leave.paidDays !== leave.daysCount && (
+                                                      <span className="block">{leave.paidDays} days paid</span>
+                                                    )}
                         </p>
                       </div>
                     </div>
